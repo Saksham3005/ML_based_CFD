@@ -72,6 +72,8 @@ class DATA(Dataset):
         vi = self.df.iloc[idx*100 : (1+idx)*100]['v']
         pi = self.df.iloc[idx*100 : (1+idx)*100]['p']
         bi = self.df.iloc[idx*100 : (1+idx)*100]['Boundary']
+        x = self.df.iloc[idx*100 : (1+idx)*100]['x']
+        y = self.df.iloc[idx*100 : (1+idx)*100]['y']
 
         i = idx+1
 
@@ -97,7 +99,9 @@ class DATA(Dataset):
             'uf': torch.tensor(uf.to_numpy(), dtype=torch.float32),
             'vf': torch.tensor(vf.to_numpy(), dtype=torch.float32),
             'pf': torch.tensor(pf.to_numpy(), dtype=torch.float32),
-            'bf': torch.tensor(bf.to_numpy(), dtype=torch.int8)
+            'bf': torch.tensor(bf.to_numpy(), dtype=torch.int8),
+            'x' : torch.tensor(x.to_numpy(), dtype=torch.int8),
+            'y' : torch.tensor(y.to_numpy(), dtype=torch.int8)
         }
 
         if self.transform:

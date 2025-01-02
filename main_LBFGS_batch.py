@@ -101,8 +101,8 @@ class DATA(Dataset):
 
 net = Net().to(device)
 criterion = nn.MSELoss()
-# optimizer = optim.LBFGS(net.parameters(), lr=0.0001, max_iter=20)
-optimizer = optim.Adam(net.parameters(), lr=0.001)
+optimizer = optim.LBFGS(net.parameters(), lr=0.0001, max_iter=20)
+# optimizer = optim.Adam(net.parameters(), lr=0.001)
 # optimizer = optim.Adam(net.parameters(), lr=0.001)
 
 scheduler = StepLR(optimizer, step_size=50, gamma=0.1)
@@ -155,7 +155,7 @@ for epoch in tqdm(range(max_iters)):
     loss = optimizer.step(closure)
     scheduler.step()
     
-    if epoch % 5 == 0:
+    if (epoch+1) % 5 == 0:
         print(f"Epoch {epoch}, Loss: {loss.item()}")
         
         PATH = 'model_new.pt'
