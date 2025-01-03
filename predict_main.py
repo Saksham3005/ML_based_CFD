@@ -12,7 +12,7 @@ from torch.optim.lr_scheduler import StepLR
 path = []
 for j in range(0, 21):
     
-    path.append(f"Boundary_Data/data_with_boundary{j}.csv")
+    path.append(f"Data/Boundary_Data/data_with_boundary{j}.csv")
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
 
@@ -102,7 +102,7 @@ class DATA(Dataset):
 
 
 model = Net().to(device)
-model.load_state_dict(torch.load('best_paramsmodel_weights_new.pt'))
+model.load_state_dict(torch.load('W_and_B/best_params/model_weights_new.pt'))
 model.eval()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 k = 0
