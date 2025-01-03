@@ -120,7 +120,7 @@ for pt in path:
             b = sample['bi'].float().to(device)
             t = torch.ones((x.shape[0], 100), dtype=torch.float32).to(device) * (i + 1)
             
-            
+            bi = sample['bi']
             
             input = torch.hstack((x, y, t, b)).to(device)
             input = torch.squeeze(input, dim=0).to(device)
@@ -147,7 +147,8 @@ for pt in path:
                 'v_pred': v_pred,
                 'p_pred': p_pred.flatten(),
                 'x' : np.ones(100, dtype = int)*i,
-                'y' : l.flatten()
+                'y' : l.flatten(),
+                'b' : bi.flatten()
             })
             predictions.to_csv(f'Data/Best_pred/predictions_{k}_{i}.csv', index=False)
     k += 1

@@ -7,14 +7,16 @@ import pandas as pd
 import torch.optim as optim
 from tqdm import tqdm
 from torch.optim.lr_scheduler import StepLR
-
+import os
+from torchsummary import summary
+import sys
 # Constants
 # path = "combined_output_main.csv"
 nu = 0.01
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
-
+weights_folder = "W_and_B/final_params"
 
 path_joined = []
 for j in range(0, 21):
@@ -120,6 +122,7 @@ class DATA(Dataset):
         vi = self.df.iloc[idx*100 : (1+idx)*100]['v']
         pi = self.df.iloc[idx*100 : (1+idx)*100]['p']
         bi = self.df.iloc[idx*100 : (1+idx)*100]['Boundary']
+        
         x = self.df.iloc[idx*100 : (1+idx)*100]['x']
         y = self.df.iloc[idx*100 : (1+idx)*100]['y']
 
@@ -143,7 +146,7 @@ class DATA(Dataset):
             'ui': torch.tensor(ui.to_numpy(), dtype=torch.float32),
             'vi': torch.tensor(vi.to_numpy(), dtype=torch.float32),
             'pi': torch.tensor(pi.to_numpy(), dtype=torch.float32),
-            'bi': torch.tensor(bi.to_numpy(), dtype=torch.float32),
+            'bi': torch.concat([torch.tensor([-999.99],dtype=torch.float32),torch.tensor(bi.to_numpy(), dtype=torch.float32)], dim=0),
             'uf': torch.tensor(uf.to_numpy(), dtype=torch.float32),
             'vf': torch.tensor(vf.to_numpy(), dtype=torch.float32),
             'pf': torch.tensor(pf.to_numpy(), dtype=torch.float32),
@@ -158,10 +161,12 @@ class DATA(Dataset):
         return sample
       
 net = Net().to(device)
+summary(net,(1,400))
+# sys.exit()
+
 criterion = nn.MSELoss()
 # optimizer = optim.LBFGS(net.parameters(), lr=0.0001, max_iter=20)
 optimizer = optim.Adam(net.parameters(), lr=1e-3, weight_decay=0.05)
-# optimizer = optim.Adam(net.parameters(), lr=0.001)
 
 scheduler = StepLR(optimizer, step_size=300, gamma=0.1)
 
@@ -243,6 +248,8 @@ for path in path_joined:
             x = sample['x'].float().to(device)
             y = sample['y'].float().to(device)
             b = sample['bi'].float().to(device)
+            
+            
             t = torch.ones((x.shape[0], 100), dtype=torch.float32).to(device) * (i + 1)
             
             x.requires_grad = True
@@ -341,7 +348,7 @@ for path in path_joined:
         total_loss.backward()
         return total_loss
 
-
+    n=0
     running_loss = 0.0
     for epoch in tqdm(range(max_iters)):
         loss = optimizer.step(closure)
@@ -349,9 +356,12 @@ for path in path_joined:
         
         if (epoch+1) % 5 == 0:
             print(f"Epoch {epoch}, Loss: {loss.item():.2f}")
-
-            
-            PATH = 'model_weights_new.pt'
+            folders = sorted(os.listdir(weights_folder))
+            for folder in folders:
+                m =  int(folder[13])
+                if(m>n):
+                    n=m
+            PATH = f'PINN_attempt_{n}_{epoch+1}.pt'
             torch.save(net.state_dict(), PATH)
 
 print('Finished Training')

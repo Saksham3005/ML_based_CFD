@@ -2,12 +2,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-for i in range (10, 15):
+for i in range (0, 21):
     lvel = []
     lp = []
     for j in range(0, 99):
         
-        path = f"Data/Final_pred/predictions_{i}_{j}.csv"
+        path = f"Data/Best_pred/predictions_{i}_{j}.csv"
         
         df = pd.read_csv(path)
         
@@ -21,8 +21,7 @@ for i in range (10, 15):
         lp.append(p)
         
     
-    
-    plt.imshow(np.array(lvel).T, cmap = 'autumn')
+    plt.imshow(np.array(lvel), cmap = 'autumn')
     plt.colorbar()
     plt.title("vel")
     
