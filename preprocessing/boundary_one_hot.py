@@ -1,8 +1,8 @@
 import pandas as pd
 import numpy as np
 l = []
-for i in range(0, 21):
-    l.append(f'NEW_DATA/data_new{i}.csv')
+for i in range(0, 25):
+    l.append(f'../Data/T_Data/newnewnew/Data_{i}.csv')
 
 def add_boundary_column(df, tolerance=1e-6):
     """
