@@ -156,7 +156,7 @@ class DATA(Dataset):
             sample = self.transform(sample)
 
         return sample
-
+      
 net = Net().to(device)
 criterion = nn.MSELoss()
 # optimizer = optim.LBFGS(net.parameters(), lr=0.0001, max_iter=20)
