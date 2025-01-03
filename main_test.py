@@ -225,7 +225,7 @@ for path in path_joined:
         x = sample['x'].float().requires_grad_(True).to(device)
         y = sample['y'].float().requires_grad_(True).to(device)
         b = sample['bi'].float().requires_grad_(True).to(device)
-        t = torch.ones((1, 100), dtype=torch.float32, requires_grad= True).to(device) * (i + 1)
+        t = torch.ones((x.shape[0], 100), dtype=torch.float32, requires_grad= True).to(device) * (i + 1)
         
         U, V, P, F, G = function(x, y, t, b)
 

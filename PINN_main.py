@@ -51,7 +51,7 @@ class Net(nn.Module):
         self.fc17 = nn.Linear(320, 315)
         self.fc18 = nn.Linear(315, 310)
         self.fc19 = nn.Linear(310, 305)
-        self.fc20 = nn.Linear(305, 305)
+        self.fc20 = nn.Linear(305, 300)
         # self.fc21 = nn.Linear(305, 305)
         # self.fc22 = nn.Linear(305, 305)
         # self.fc23 = nn.Linear(305, 305)
@@ -160,10 +160,10 @@ class DATA(Dataset):
 net = Net().to(device)
 criterion = nn.MSELoss()
 # optimizer = optim.LBFGS(net.parameters(), lr=0.0001, max_iter=20)
-optimizer = optim.Adam(net.parameters(), lr=100)
+optimizer = optim.Adam(net.parameters(), lr=1e-3, weight_decay=0.05)
 # optimizer = optim.Adam(net.parameters(), lr=0.001)
 
-scheduler = StepLR(optimizer, step_size=50, gamma=0.1)
+scheduler = StepLR(optimizer, step_size=300, gamma=0.1)
 
 
 
@@ -171,7 +171,6 @@ max_iters = 1000
 
 
 def function(x, y, t, b):
-        # print(x, y, t, b)
         res = net(torch.hstack((x, y, t, b))).to(device)
         #res = self.net(torch.cat(x, y, t), dim = 1)
         # print(res)
@@ -210,27 +209,27 @@ def function(x, y, t, b):
 for path in path_joined:
     
     PINN_dataset = DATA(path)
-    data = DataLoader(PINN_dataset, batch_size=1, pin_memory=True, num_workers=4)
+    data = DataLoader(PINN_dataset, batch_size=1000, pin_memory=True, num_workers=4)
 
     def closure():
         optimizer.zero_grad()
         total_loss = 0
         
-        for i, sample in enumerate(data):
-            # Print shapes of input tensors for debugging
-            # print(f"\nBatch {i} shapes:")
-            # for key, value in sample.items():
-            #     print(f"{key}: {value.shape}")
+        # for i, sample in enumerate(data):
+        #     # Print shapes of input tensors for debugging
+        #     # print(f"\nBatch {i} shapes:")
+        #     # for key, value in sample.items():
+        #     #     print(f"{key}: {value.shape}")
             
-            ui = sample['ui'].to(device)
-            vi = sample['vi'].to(device)
-            pi = sample['pi'].to(device)
-            x = sample['x'].float().to(device)
-            y = sample['y'].float().to(device)
-            b = sample['bi'].float().to(device)
-            t = torch.ones((1, 99), dtype=torch.float32).to(device) * (i + 1)
-            optimizer.zero_grad()
-        total_loss = 0
+        #     ui = sample['ui'].to(device)
+        #     vi = sample['vi'].to(device)
+        #     pi = sample['pi'].to(device)
+        #     x = sample['x'].float().to(device)
+        #     y = sample['y'].float().to(device)
+        #     b = sample['bi'].float().to(device)
+        #     t = torch.ones((1, 99), dtype=torch.float32).to(device) * (i + 1)
+        #     optimizer.zero_grad()
+        # total_loss = 0
         
         for i, sample in enumerate(data):
             # Print shapes of input tensors for debugging
@@ -244,7 +243,7 @@ for path in path_joined:
             x = sample['x'].float().to(device)
             y = sample['y'].float().to(device)
             b = sample['bi'].float().to(device)
-            t = torch.ones((1, 100), dtype=torch.float32).to(device) * (i + 1)
+            t = torch.ones((x.shape[0], 100), dtype=torch.float32).to(device) * (i + 1)
             
             x.requires_grad = True
             y.requires_grad = True
@@ -349,9 +348,10 @@ for path in path_joined:
         scheduler.step()
         
         if (epoch+1) % 5 == 0:
-            print(f"Epoch {epoch}, Loss: {loss.item()}")
+            print(f"Epoch {epoch}, Loss: {loss.item():.2f}")
+
             
-            PATH = 'model_final_new_besssst_final.pt'
+            PATH = 'model_weights_new.pt'
             torch.save(net.state_dict(), PATH)
 
 print('Finished Training')
